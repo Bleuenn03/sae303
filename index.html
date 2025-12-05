@@ -4,9 +4,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <link rel="stylesheet" href="./style.css">
 
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { 
+      margin: 0; 
+      overflow: hidden; 
+    }
     
     @keyframes pulse {
       0% { transform: scale(1); opacity: 0.3; }
@@ -35,164 +39,513 @@
     }
     
     .hidden { display: none !important; }
+
+    /* Modal/Popup styles */
+    #popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      backdrop-filter: blur(4px);
+    }
+
+    #popup-overlay.show { 
+      display: flex; 
+    }
+
+    .popup-modal {
+      background: white;
+      width: 80%;
+      max-width: 900px;
+      height: 70vh;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .popup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+      background: rgba(255,255,255,0.9);
+    }
+
+    .popup-close {
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .popup-close:hover {
+      background: #e63333;
+      transform: scale(1.05);
+    }
+
+    .popup-actions { 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+      flex-wrap: wrap;
+      flex: 1;
+      overflow: auto; /* allow scrolling when many buttons */
+      max-height: 160px; /* limit header height on small devices */
+    }
+
+    .popup-action {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .popup-action:hover {
+      background: #5568d3;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transform: translateY(-2px);
+    }
+
+    .popup-action.active {
+      background: #e74c3c;
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+
+    .popup-action-retour { 
+      background: #777; 
+      margin-left: auto;
+    }
+
+    .popup-action-retour:hover {
+      background: #555;
+    }
+
+    .popup-body { 
+      flex: 1; 
+      display: flex; 
+      overflow-y: auto;
+    }
+
+    #popup-iframe { 
+      width: 100%; 
+      height: 100%; 
+      border: 0; 
+    }
+
+    /* Floating menu */
+    #scenes-menu {
+      position: fixed;
+      left: 14px;
+      bottom: 14px;
+      background: rgba(255,255,255,0.95);
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      font-family: system-ui, Arial;
+      z-index: 10000;
+    }
+
+    #scenes-menu > div:first-child {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    #scenes-menu a {
+      color: #0077cc;
+      text-decoration: none;
+      display: block;
+      padding: 4px 0;
+      transition: all 0.2s ease;
+    }
+
+    #scenes-menu a:hover {
+      color: #005fa3;
+      padding-left: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .popup-modal {
+        width: 94%;
+        height: 78vh;
+        max-width: 720px;
+        border-radius: 10px;
+      }
+
+      #popup-overlay {
+        backdrop-filter: blur(2px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .popup-modal {
+        width: 96%;
+        height: 84vh;
+      }
+
+      .popup-header {
+        padding: 8px 10px;
+        align-items: flex-start;
+        gap: 8px;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .popup-actions {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+        max-height: none;
+      }
+
+      .popup-action {
+        flex: 0 0 auto;
+        padding: 10px 14px;
+        font-size: 14px;
+        border-radius: 10px;
+        min-width: 120px;
+        text-align: center;
+      }
+
+      .popup-action-retour {
+        margin-left: 0;
+        align-self: center;
+        background: #666;
+      }
+
+      .popup-body { height: calc(84vh - 64px); }
+      #popup-iframe { height: 100%; }
+    }
   </style>
 </head>
 <body>
   <div id="scan-overlay">
-    <img src="./assets/Affichev1.jpg" alt="scan hint" />
+    <img src="./assets/Affichev2.jpg" alt="scan hint" />
   </div>
 
   <a-scene mindar-image="uiScanning: #scan-overlay; imageTargetSrc: ./assets/targets2.mind;"
            color-space="sRGB"
            renderer="colorManagement: true, physicallyCorrectLights"
            vr-mode-ui="enabled: false"
-           device-orientation-permission-ui="enabled: false">
+           device-orientation-permission-ui="enabled: false"
+           raycaster="objects: .clickable">
 
     <a-assets>
-      <img id="card" src="./assets/Affichev1.jpg" />
+      
       <img id="img-front" src="./assets/plans/PlanPerso.png" crossorigin="anonymous" />
+
+<img id="90perso" src="./assets/plans/90_perso.png" crossorigin="anonymous" />
+<img id="90tab" src="./assets/plans/90_tableau.png" crossorigin="anonymous" />
+
+<img id="escperso" src="./assets/plans/escalier_perso.png" crossorigin="anonymous" />
+<img id="esctexte" src="./assets/plans/escalier_texte.png" crossorigin="anonymous" />
+
+<img id="apprenti-t" src="./assets/plans/apprenti_texte.png" crossorigin="anonymous" />
+<img id="apprenti-3p" src="./assets/plans/apprenti_3perso.png" crossorigin="anonymous" />
+
+<img id="school-left" src="./assets/plans/school_l.png" crossorigin="anonymous" />
+<img id="school-right" src="./assets/plans/school_r.png" crossorigin="anonymous" />
+<img id="pictoschool-left" src="./assets/plans/schoolpicto_l.png" crossorigin="anonymous" />
+<img id="pictoschool-right" src="./assets/plans/schoolpicto_r.png" crossorigin="anonymous" />
+
+<img id="icon1" src="./assets/plans/icon1.png" crossorigin="anonymous" />
+<img id="icon2" src="./assets/plans/icon2.png" crossorigin="anonymous" />
+<img id="icon3" src="./assets/plans/icon3.png" crossorigin="anonymous" />
+<img id="icon4" src="./assets/plans/icon4.png" crossorigin="anonymous" />
+<img id="icon5" src="./assets/plans/icon5.png" crossorigin="anonymous" />
+
+<img id="31prct" src="./assets/plans/31.png" crossorigin="anonymous" />
+<img id="26prct" src="./assets/plans/26.png" crossorigin="anonymous" />
+<img id="13prct" src="./assets/plans/13.png" crossorigin="anonymous" />
+<img id="12prct" src="./assets/plans/12.png" crossorigin="anonymous" />
+<img id="8prct" src="./assets/plans/8.png" crossorigin="anonymous" />
+
+
+<img id = "bac2" src="./assets/plans/bac2.png" crossorigin="anonymous">
+<img id = "bac3" src="./assets/plans/bac3.png" crossorigin="anonymous">
+<img id = "bac5" src="./assets/plans/bac5.png" crossorigin="anonymous">
+
+<img id = "bac2p" src="./assets/plans/bac2perso.png" crossorigin="anonymous">
+<img id = "bac3p" src="./assets/plans/bac3perso.png" crossorigin="anonymous">
+<img id = "bac5p" src="./assets/plans/bac5perso.png" crossorigin="anonymous">
+
+
       <img id="btn1" src="./assets/plans/picto1.png" crossorigin="anonymous" />
       <img id="btn2" src="./assets/plans/picto2.png" crossorigin="anonymous" />
+      <img id="btn3" src="./assets/plans/picto3.png" crossorigin="anonymous" />
+      <img id="btn4" src="./assets/plans/picto4.png" crossorigin="anonymous" />
+      <img id="btn5" src="./assets/plans/picto5.png" crossorigin="anonymous" />
+      <img id="btn6" src="./assets/plans/picto6.png" crossorigin="anonymous" />
+      <img id="btn7" src="./assets/plans/picto7.png" crossorigin="anonymous" />
+      <img id="btn8" src="./assets/plans/picto8.png" crossorigin="anonymous" />
+      <img id="btn9" src="./assets/plans/picto9.png" crossorigin="anonymous" />
       <img id="half-left" src="./assets/plans/camembertG.png" crossorigin="anonymous" />
       <img id="half-right" src="./assets/plans/camembertD.png" crossorigin="anonymous" />
-      <a-asset-item id="avatarModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/softmind/scene.gltf"></a-asset-item>
     </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="far: 10000; objects: .clickable"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0" id="target">
       <!-- Affiche arrière-plan -->
-      <a-plane id="card-plane" src="#card" position="0 0 0" rotation="0 0 0"></a-plane>
+      
 
       <!-- Personnage devant -->
-      <a-plane id="layer-front" src="#img-front"
-               position="0 0 0.1" transparent="true"
-               material="transparent: true; alphaTest: 0.5;"></a-plane>
+<a-plane id="layer-front" src="#img-front" position="0.01002 0.9 0.18205" width="1" height="1" transparent="true" scale="0.87553 0.87553 0.87553" material="alphaTest: 0.1; depthWrite: false; side: double; opacity: 0"
+  animation__rise="startEvents: rise; property: position; from: 0.01002 0.25333 0.18205; to: 0.01002 0.35333 0.18205; dur: 700; easing: easeOutCubic"
+  animation__fadein="startEvents: fadein; property: material.opacity; from: 0; to: 1; dur: 700; easing: easeOutQuad"
+  animation__hide="startEvents: hide; property: position; from: 0.01002 0.35333 0.18205; to: 0.01002 0.25333 0.18205; dur: 500; easing: easeInCubic"
+  animation__fadeout="startEvents: fadeout; property: material.opacity; from: 1; to: 0; dur: 400; easing: linear">
+</a-plane>
 
-    <a-plane id="btn1" src="#btn1" position="-0.2 0 0.2" width="0.1" height="0.1" transparent="true"></a-plane>
-<a-plane id="btn2" src="#btn2" position="0.2 0 0.2" width="0.1" height="0.1" transparent="true"></a-plane>
+
+<!-- 3D Graphiques des pourcentages avec animations -->
+<a-entity id="rect1" position="-0.32 -0.17353 0.1" geometry="depth: 0.02; height: 0.71"
+  scale="0.07 0.21 2" material="color: #C7454b; opacity: 0"
+  animation__grow="startEvents: bounce; property: scale; from: 0.07 0 2; to: 0.07 0.21 2; dur: 1200; easing: easeOutBack; delay: 80"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 80">
+</a-entity>
+
+<a-entity id="rect2" position="-0.16 -0.1793 0.1" geometry="depth: 0.02; height: 0.64"
+  scale="0.07 0.21 2" material="color: #e96a59; opacity: 0"
+  animation__grow="startEvents: bounce; property: scale; from: 0.07 0 2; to: 0.07 0.21 2; dur: 1200; easing: easeOutBack; delay: 160"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 160">
+</a-entity>
+
+<a-entity id="rect3" position="0.0022 -0.19598 0.1" geometry="depth: 0.02; height: 0.5"
+  scale="0.07 0.21 2" material="color: #8f3f56; opacity: 0"
+  animation__grow="startEvents: bounce; property: scale; from: 0.07 0 2; to: 0.07 0.21 2; dur: 1200; easing: easeOutBack; delay: 240"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 240">
+</a-entity>
+
+<a-entity id="rect4" position="0.17 -0.20368 0.1" geometry="depth: 0.02; height: 0.44"
+  scale="0.07 0.21 2" material="color: #dc88a2; opacity: 0"
+  animation__grow="startEvents: bounce; property: scale; from: 0.07 0 2; to: 0.07 0.21 2; dur: 1200; easing: easeOutBack; delay: 320"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 320">
+</a-entity>
+
+<a-entity id="rect5" position="0.32 -0.21073 0.1" geometry="depth: 0.02; height: 0.35"
+  scale="0.07 0.21 2" material="color: #516842; opacity: 0"
+  animation__grow="startEvents: bounce; property: scale; from: 0.07 0 2; to: 0.07 0.21 2; dur: 1200; easing: easeOutBack; delay: 400"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 400">
+</a-entity>
+
+
+<!-- ICONES AVEC ANIMATION -->
+<a-plane id="icon1-plane" src="#icon1" position="-0.32 -0.06446 0.1" width="1" height="1.08"
+  transparent="true" class="clickable" scale="0.05 0.05 0.05"
+  material="alphaTest: 0.1; depthWrite: false; side: double; opacity: 0"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 80">
+</a-plane>
+
+<a-plane id="icon2-plane" src="#icon2" position="-0.16 -0.06785 0.1" width="1" height="1.40"
+  transparent="true" class="clickable" scale="0.05 0.05 0.05"
+  material="alphaTest: 0.1; depthWrite: false; side: double; opacity: 0"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 160">
+</a-plane>
+
+<a-plane id="icon3-plane" src="#icon3" position="0.0022 -0.11063 0.1" width="1" height="0.875"
+  transparent="true" class="clickable" scale="0.05 0.05 0.05"
+  material="alphaTest: 0.1; depthWrite: false; side: double; opacity: 0"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 240">
+</a-plane>
+
+<a-plane id="icon4-plane" src="#icon4" position="0.17 -0.12858 0.1" width="1" height="0.75"
+  transparent="true" class="clickable" scale="0.05 0.05 0.05"
+  material="alphaTest: 0.1; depthWrite: false; side: double; opacity: 0"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 320">
+</a-plane>
+
+<a-plane id="icon5-plane" src="#icon5" position="0.32 -0.14527 0.1" width="1" height="0.964"
+  transparent="true" class="clickable" scale="0.05 0.05 0.05"
+  material="alphaTest: 0.1; depthWrite: false; side: double; opacity: 0"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 400">
+</a-plane>
+
+
+
+<a-plane id="31prct-plane" src="#31prct" position="-0.31086 -0.13976 0.159" width="1" height="0.804" transparent="true" class="clickable" scale="0.05 0.05 0.05" material="alphaTest: 0.1; depthWrite: false; side: double"
+animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 80"></a-plane>
+<a-plane id="26prct-plane" src="#26prct" position="-0.15376 -0.15086 0.159" width="1" height="0.712" transparent="true" class="clickable" scale="0.05 0.05 0.05" material="alphaTest: 0.1; depthWrite: false; side: double"
+animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 160"></a-plane>
+<a-plane id="13prct-plane" src="#13prct" position="0.0074 -0.17581 0.159" width="1" height="0.804" transparent="true" class="clickable" scale="0.05 0.05 0.05" material="alphaTest: 0.1; depthWrite: false; side: double"
+animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 240"></a-plane>
+<a-plane id="12prct-plane" src="#12prct" position="0.17 -0.19062 0.159" width="1" height="0.822" transparent="true" class="clickable" scale="0.05 0.05 0.05" material="alphaTest: 0.1; depthWrite: false; side: double"
+animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 320"></a-plane>
+<a-plane id="8prct-plane" src="#8prct" position="0.32 -0.20819 0.159" width="1" height="1" transparent="true" class="clickable" scale="0.05 0.05 0.05" material="alphaTest: 0.1; depthWrite: false; side: double"
+animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 400"></a-plane>
+
+<a-plane id="bac2-plane" src="#bac2" position="-0.44033 -0.43531 0.18" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double"></a-plane>
+<a-plane id="bac3-plane" src="#bac3" position="0.04721 -0.43531 0.18" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double"></a-plane>
+<a-plane id="bac5-plane" src="#bac5" position="0.47046 -0.4313 0.18" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double"></a-plane>
+
+<a-plane id="bac2p-plane" src="#bac2p" position="-0.43882 -0.37143 0.15" width="1" height="0.3790" transparent="true" class="clickable" scale="0.5 0.5 0.5" material="alphaTest: 0.1; side: double"></a-plane>
+<a-plane id="bac3p-plane" src="#bac3p" position="0.02961 -0.39191 0.15" width="1" height="0.5" transparent="true" class="clickable" scale="0.44669 0.44669 0.44669" material="alphaTest: 0.1; side: double"></a-plane>
+<a-plane id="bac5p-plane" src="#bac5p" position="0.47352 -0.39095 0.15" width="1" height="0.6489" transparent="true" class="clickable" scale="0.32824 0.32824 0.32824" material="alphaTest: 0.1; side: double"></a-plane>
+
+      <!-- Boutons 1 à 9 -->
+      <a-plane id="btn1-plane" src="#btn1" position="-0.7134 -0.01941 0.163" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+        animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.864 0.8637 0.86398; dur: 800; easing: easeOutElastic; delay: 80">
+      </a-plane>
+      <!-- Bouton 2 -->
+<a-plane id="btn2-plane" src="#btn2" position="-0.62347 0.3219 0.16723" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+  animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.86398 0.86398 0.86398; dur: 820; easing: easeOutElastic; delay: 160">
+</a-plane>  <!-- Boutons 3 → 9 (ajoutés) -->
+ <a-plane id="btn3-plane" src="#btn3" position="-0.42689 0.58018 0.16813" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+   animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.86383 0.86383 0.86383; dur: 840; easing: easeOutElastic; delay: 240">
+ </a-plane>
+ <a-plane id="btn4-plane" src="#btn4" position="-0.1553 0.75748 0.17417" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+   animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.8638 0.8638 0.8638; dur: 860; easing: easeOutElastic; delay: 320">
+ </a-plane>
+  <a-plane id="btn5-plane" src="#btn5" position="0.18201 0.75849 0.17143" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+    animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.86374 0.86374 0.86374; dur: 880; easing: easeOutElastic; delay: 400">
+  </a-plane>
+  <a-plane id="btn6-plane" src="#btn6" position="0.46514 0.63818 0.16846" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+    animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.86367 0.86367 0.86367; dur: 900; easing: easeOutElastic; delay: 480">
+  </a-plane>
+ <a-plane id="btn7-plane" src="#btn7" position="0.64269 0.39871 0.1662" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+   animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.86378 0.86378 0.86378; dur: 920; easing: easeOutElastic; delay: 560">
+ </a-plane>
+  <a-plane id="btn8-plane" src="#btn8" position="0.71111 0.13855 0.16473" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+    animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.86364 0.86364 0.86364; dur: 940; easing: easeOutElastic; delay: 640">
+  </a-plane>
+<a-plane id="btn9-plane" src="#btn9" position="0.6838 -0.11268 0.17937" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
+  animation__bounce="startEvents: bounce; property: scale; from: 0 0 0; to: 0.86387 0.86387 0.86387; dur: 960; easing: easeOutElastic; delay: 720">
+</a-plane>
 
       <!-- Conteneur pour le camembert -->
-      <a-entity id="camembert-container" position="0 0 0.12">
-        
-        <!-- Moitié GAUCHE : positionnée à gauche avec un léger offset -->
-        <a-plane id="leftArc" 
-                 src="#half-left"
-                 position="-0.35 0 0"
-                 width="0.5" 
-                 height="1"
-                 scale="0 1 1"
-                 transparent="true" 
-                 material="transparent: true; alphaTest: 0.5; side: double;">
-        </a-plane>
+      <a-entity id="camembert-container" position="0.01172 0.2654 0.10587" scale="0.82318 0.82318 0.82318">
+    <a-plane id="leftArc" src="#half-left" position="-0.34503 0 0" width="0.686" height="1" material="alphaTest: 0.1; depthWrite: false; side: double; transparent: true"></a-plane>
 
-        <!-- Moitié DROITE : positionnée à droite avec un léger offset -->
-        <a-plane id="rightArc" 
-                 src="#half-right"
-                 position="0.35 0 0"
-                 width="0.5" 
-                 height="1"
-                 scale="0 1 1"
-                 transparent="true" 
-                 material="transparent: true; alphaTest: 0.5; side: double;">
-        </a-plane>
-        
-      </a-entity>
+    <a-plane id="rightArc" src="#half-right" position="0.34503 0 0" width="0.686" height="1" material="alphaTest: 0.1; depthWrite: false; side: double; transparent: true"></a-plane>
+
+  </a-entity>
 
     </a-entity>
   </a-scene>
-  
-  <!-- Quick link to new scene4 for Tourisme/Hôtellerie -->
-  <a href="./scene4.html" id="scene4-link" style="position:fixed; right:14px; bottom:14px; background:#0077cc; color:#fff; padding:8px 12px; border-radius:6px; text-decoration:none; font-family:system-ui, Arial; z-index:10000; box-shadow:0 2px 6px rgba(0,0,0,0.2);">Tourisme / H.R.</a>
 
-  <!-- Floating scenes menu -->
-  <div id="scenes-menu" style="position:fixed; left:14px; bottom:14px; background:rgba(255,255,255,0.95); padding:8px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.12); font-family:system-ui, Arial; z-index:10000;">
-    <div style="font-weight:600; margin-bottom:6px; font-size:13px;">Accéder aux scènes</div>
-    <div style="display:flex; flex-direction:column; gap:6px;">
-      <a href="./scene4.html" style="color:#0077cc; text-decoration:none;">4 — Tourisme, H.R.</a>
-      <a href="./scene5.html" style="color:#0077cc; text-decoration:none;">5 — Gestion, comptabilité</a>
-      <a href="./scene6.html" style="color:#0077cc; text-decoration:none;">6 — Commerce, communication</a>
-      <a href="./scene7.html" style="color:#0077cc; text-decoration:none;">7 — Médical / Sanitaire</a>
-      <a href="./scene8.html" style="color:#0077cc; text-decoration:none;">8 — Numérique</a>
-      <a href="./scene9.html" style="color:#0077cc; text-decoration:none;">9 — Lettres, langues</a>
-      <a href="./scene10.html" style="color:#0077cc; text-decoration:none;">10 — Arts plastiques</a>
+  <!-- Popup overlay pour les scènes -->
+  <div id="popup-overlay">
+    <div class="popup-modal">
+      <div class="popup-header">
+        <div class="popup-actions" id="scenes-menu-buttons">
+          <a href="#" data-scene="2" class="popup-action">1 — Industrie/Artisanat</a>
+          <a href="#" data-scene="3" class="popup-action">2 — Logistique</a>
+          <a href="#" data-scene="4" class="popup-action">3 — Tourisme, H.R.</a>
+          <a href="#" data-scene="5" class="popup-action">4 — Gestion, comptabilité</a>
+          <a href="#" data-scene="6" class="popup-action">5 — Commerce, communication</a>
+          <a href="#" data-scene="7" class="popup-action">6 — Médical / Sanitaire</a>
+          <a href="#" data-scene="8" class="popup-action">7 — Numérique</a>
+          <a href="#" data-scene="9" class="popup-action">8 — Lettres, langues</a>
+          <a href="#" data-scene="10" class="popup-action">9 — Arts plastiques</a>
+        </div>
+        <button class="popup-close">✕</button>
+      </div>
+      <div class="popup-body">
+        <iframe id="popup-iframe"></iframe>
+      </div>
     </div>
   </div>
-<script>
-  document.querySelector('#btn1').addEventListener('click', () => {
-    console.log('Bouton 1 cliqué');
-  });
-  document.querySelector('#btn2').addEventListener('click', () => {
-    console.log('Bouton 2 cliqué');
-  });
-  document.querySelector('#btn3').addEventListener('click', () => {
-    console.log('Bouton 3 cliqué');
-  });
-</script>
+
+
+
   <script>
-    function setPlaneRatio(plane, img) {
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      if (!w || !h) return;
-      const ratio = w / h;
-      plane.setAttribute("width", ratio);
-      plane.setAttribute("height", 1);
-    }
+    document.addEventListener("DOMContentLoaded", function() {
+      // ========== Configuration des scènes ==========
+      const sceneMapping = {
+        'btn1': './scene2.html',
+        'btn2': './scene3.html',
+        'btn3': './scene4.html',
+        'btn4': './scene5.html',
+        'btn5': './scene6.html',
+        'btn6': './scene7.html',
+        'btn7': './scene8.html',
+        'btn8': './scene9.html',
+        'btn9': './scene10.html'
+      };
 
-    window.addEventListener('load', () => {
-      const img = document.getElementById('card');
-      const plane = document.getElementById('card-plane');
-      const overlay = document.getElementById('scan-overlay');
+      // ========== DOM Elements ==========
+      const popupOverlay = document.getElementById("popup-overlay");
+      const popupClose = document.querySelector(".popup-close");
+      const iframe = document.getElementById('popup-iframe');
       const target = document.getElementById('target');
-
-      const imgFront = document.getElementById('img-front');
-      const planeFront = document.getElementById('layer-front');
-
-      const halfLeft = document.getElementById('half-left');
-      const halfRight = document.getElementById('half-right');
+      const overlay = document.getElementById('scan-overlay');
       const leftArc = document.getElementById('leftArc');
       const rightArc = document.getElementById('rightArc');
 
       let isAnimating = false;
 
-      // Appliquer ratios aux images
-      if (imgFront.complete) setPlaneRatio(planeFront, imgFront);
-      else imgFront.addEventListener('load', () => setPlaneRatio(planeFront, imgFront));
-      
-      if (halfLeft.complete) setPlaneRatio(leftArc, halfLeft);
-      else halfLeft.addEventListener('load', () => setPlaneRatio(leftArc, halfLeft));
-      
-      if (halfRight.complete) setPlaneRatio(rightArc, halfRight);
-      else halfRight.addEventListener('load', () => setPlaneRatio(rightArc, halfRight));
+      // ========== Fonctions principales ==========
+      function openModalFor(src) {
+        iframe.src = src;
+        popupOverlay.classList.add('show');
+        updateActiveButton(src);
+      }
+      // Attempt to attach a click interceptor inside the iframe when it contains same-origin content
+        function tryAttachInterceptor() {
+          try {
+            const doc = iframe.contentDocument;
+            if (!doc) return;
+            // avoid double-attaching
+            if (doc.__linkInterceptorAttached) return;
+            doc.__linkInterceptorAttached = true;
 
-      function applyRatio() {
-        if (!img.naturalWidth) { setTimeout(applyRatio, 100); return; }
-        const ratio = img.naturalWidth / img.naturalHeight;
-        plane.setAttribute('width', ratio);
-        plane.setAttribute('height', 1);
+            // Delegate clicks on anchors: prevent default and navigate iframe.src so links open inside the popup
+            doc.addEventListener('click', function(e) {
+              const closest = e.target.closest ? e.target.closest('a[href]') : null;
+              if (!closest) return;
+              const href = closest.getAttribute('href');
+              if (!href || href.startsWith('javascript:') || href.startsWith('#')) return;
+              e.preventDefault();
+              // navigate the iframe to the chosen href (this will attempt to load the external site inside the iframe)
+              iframe.src = href;
+            });
+          } catch (err) {
+            // cross-origin or other access error — nothing to do
+          }
+        }
 
-        const screenWidth = window.innerWidth;
-        const pixelDensity = window.devicePixelRatio || 1;
-        let globalScale = 1.0;
-        if (screenWidth < 480) globalScale = 0.9;
-        else if (screenWidth < 768) globalScale = 1.0;
-        else if (screenWidth < 1024) globalScale = 1.3;
-        else if (screenWidth < 1440) globalScale = 1.5;
-        else globalScale = 1.8;
-        if (pixelDensity > 2) globalScale *= 0.9;
+        // Attach once when the iframe finishes loading same-origin content
+        const _onLoad = () => { tryAttachInterceptor(); iframe.removeEventListener('load', _onLoad); };
+        iframe.addEventListener('load', _onLoad);
 
-        plane.setAttribute('scale', `${globalScale} ${globalScale} ${globalScale}`);
+      function updateActiveButton(src) {
+        const sceneNum = src.match(/scene(\d+)/)?.[1];
+        if (!sceneNum) return;
+        
+        document.querySelectorAll('.popup-action').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.getAttribute('data-scene') === sceneNum) {
+            btn.classList.add('active');
+          }
+        });
       }
 
-      if (img.complete) applyRatio();
-      else img.addEventListener('load', applyRatio);
-
-      // Animation du camembert
+      // ========== Animation du camembert ==========
       function animateCamembert() {
         if (isAnimating) return;
         isAnimating = true;
 
-        // Animation moitié gauche
         leftArc.setAttribute('animation', {
           property: 'scale',
           from: '0 1 1',
@@ -201,7 +554,6 @@
           easing: 'easeOutCubic'
         });
 
-        // Animation moitié droite avec délai
         setTimeout(() => {
           rightArc.setAttribute('animation', {
             property: 'scale',
@@ -221,16 +573,160 @@
         rightArc.removeAttribute('animation');
       }
 
-      // Gestion overlay et animation
+      // ========== Événements AR ==========
       target.addEventListener('targetFound', () => {
         overlay.classList.add('hidden');
         animateCamembert();
+  // Trigger rise + fadein on layer-front
+  const front = document.getElementById('layer-front');
+  if (front && front.emit) { front.emit('rise'); front.emit('fadein'); }
+
+  // Trigger animations on icons, rectangles and buttons
+        ['icon1-plane','icon2-plane','icon3-plane','icon4-plane','icon5-plane','rect1','rect2','rect3','rect4','rect5','btn1-plane','btn2-plane','btn3-plane','btn4-plane','btn5-plane','btn6-plane','btn7-plane','btn8-plane','btn9-plane'].forEach((id, i) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (id.startsWith('btn')) {
+            // ensure starting from scale 0 for buttons
+            el.setAttribute('scale', '0 0 0');
+          } else if (id.startsWith('icon') || id.startsWith('rect')) {
+            // set opacity to 0 for icons and rectangles
+            el.setAttribute('material', 'opacity: 0');
+          }
+          // emit bounce event with a slight stagger
+          setTimeout(() => el.emit && el.emit('bounce'), 80 * i);
+        });
       });
-      
+
       target.addEventListener('targetLost', () => {
         overlay.classList.remove('hidden');
         resetCamembert();
+        // Hide + fadeout layer-front
+        const front = document.getElementById('layer-front');
+        if (front && front.emit) { front.emit('hide'); front.emit('fadeout'); }
+        // reset icons and buttons
+        ['icon1-plane','icon2-plane','icon3-plane','icon4-plane','icon5-plane','btn1-plane','btn2-plane','btn3-plane','btn4-plane','btn5-plane','btn6-plane','btn7-plane','btn8-plane','btn9-plane'].forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (id.startsWith('btn')) {
+            el.setAttribute('scale', '0 0 0');
+          } else {
+            el.setAttribute('material', 'opacity: 0');
+          }
+        });
       });
+
+      // ========== Attacher les handlers pour les boutons de scène ==========
+      ['btn1','btn2','btn3','btn4','btn5','btn6','btn7','btn8','btn9'].forEach(id => {
+        const el = document.getElementById(id + '-plane');
+        if (!el) {
+          console.warn('Élément non trouvé:', id + '-plane');
+          return;
+        }
+        el.addEventListener('click', (e) => {
+          console.log('Bouton cliqué:', id);
+          const src = sceneMapping[id];
+          if (src) {
+            openModalFor(src);
+          }
+        });
+      });
+
+      // Menu buttons dans le header
+      document.querySelectorAll('.popup-action[data-scene]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const sceneNum = btn.getAttribute('data-scene');
+          const src = `./scene${sceneNum}.html`;
+          openModalFor(src);
+        });
+      });
+
+      // Menu flottant
+      document.querySelectorAll('#scenes-menu a[data-scene]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const sceneNum = btn.getAttribute('data-scene');
+          const src = `./scene${sceneNum}.html`;
+          openModalFor(src);
+        });
+      });
+
+      // Fermer la modal
+      popupClose.addEventListener('click', () => { 
+        popupOverlay.classList.remove('show'); 
+        iframe.src = 'about:blank'; 
+        document.querySelectorAll('.popup-action').forEach(btn => btn.classList.remove('active'));
+      });
+
+      // Fermer en cliquant sur le fond
+      popupOverlay.addEventListener('click', (e) => {
+        if (e.target === popupOverlay) {
+          popupOverlay.classList.remove('show');
+          iframe.src = 'about:blank';
+          document.querySelectorAll('.popup-action').forEach(btn => btn.classList.remove('active'));
+        }
+      });
+
+      // Fermer avec la touche Échap (Escape) — accessibilité
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+          if (popupOverlay.classList.contains('show')) {
+            popupOverlay.classList.remove('show');
+            iframe.src = 'about:blank';
+            document.querySelectorAll('.popup-action').forEach(btn => btn.classList.remove('active'));
+          }
+        }
+      });
+
+      // ========== Ratio de l'affichage ==========
+      function setPlaneRatio(plane, img) {
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        if (!w || !h) return;
+        const ratio = w / h;
+        plane.setAttribute('width', ratio);
+        plane.setAttribute('height', 1);
+      }
+
+      function applyRatio() {
+        const card = document.getElementById('card');
+        const cardPlane = document.getElementById('card-plane');
+        const frontImg = document.getElementById('img-front');
+        const frontPlane = document.getElementById('layer-front');
+        const halfLeft = document.getElementById('half-left');
+        const halfRight = document.getElementById('half-right');
+        const leftArcEl = document.getElementById('leftArc');
+        const rightArcEl = document.getElementById('rightArc');
+
+        if (!card.naturalWidth) {
+          setTimeout(applyRatio, 100);
+          return;
+        }
+
+        const ratio = card.naturalWidth / card.naturalHeight;
+        cardPlane.setAttribute('width', ratio);
+        cardPlane.setAttribute('height', 1);
+
+        setPlaneRatio(frontPlane, frontImg);
+        setPlaneRatio(leftArcEl, halfLeft);
+        setPlaneRatio(rightArcEl, halfRight);
+
+        const screenWidth = window.innerWidth;
+        const pixelDensity = window.devicePixelRatio || 1;
+        let globalScale = 1.0;
+        if (screenWidth < 480) globalScale = 0.9;
+        else if (screenWidth < 768) globalScale = 1.0;
+        else if (screenWidth < 1024) globalScale = 1.3;
+        else if (screenWidth < 1440) globalScale = 1.5;
+        else globalScale = 1.8;
+        if (pixelDensity > 2) globalScale *= 0.9;
+
+        cardPlane.setAttribute('scale', `${globalScale} ${globalScale} ${globalScale}`);
+      }
+
+      const card = document.getElementById('card');
+      if (card.complete) applyRatio();
+      else card.addEventListener('load', applyRatio);
 
       window.addEventListener('orientationchange', () => setTimeout(applyRatio, 300));
       window.addEventListener('resize', () => applyRatio());
