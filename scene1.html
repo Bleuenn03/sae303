@@ -1,0 +1,421 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-inspector/dist/aframe-inspector.min.js"></script>
+
+  <style>
+    body { margin: 0; overflow: hidden; }
+
+    /* Popup styles */
+    #popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    #popup-overlay.show {
+      display: flex;
+    }
+
+    .popup-content {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .popup-close:hover {
+      background: #cc0000;
+    }
+
+    .popup-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .popup-text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .popup-link {
+      color: #0077ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .popup-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ======================================================= -->
+<!-- SCÈNE 1 — TON CODE D'ORIGINE (sans rien modifier) -->
+<!-- ======================================================= -->
+
+<a-scene id="scene1"
+         inspector="url: https://aframe.io/releases/1.6.0/aframe-inspector.min.js"
+         color-space="sRGB" 
+         renderer="colorManagement: true, physicallyCorrectLights"
+         vr-mode-ui="enabled: false"
+         raycaster="objects: .clickable">
+
+  <a-assets>
+    <img id="card" src="./assets/Affichev2.png" />
+    <img id="img-front" src="./assets/plans/PlanPerso.png" crossorigin="anonymous" />
+
+<img id="90perso" src="./assets/plans/90_perso.png" crossorigin="anonymous" />
+<img id="90tab" src="./assets/plans/90_tableau.png" crossorigin="anonymous" />
+
+<img id="escperso" src="./assets/plans/escalier_perso.png" crossorigin="anonymous" />
+<img id="esctexte" src="./assets/plans/escalier_texte.png" crossorigin="anonymous" />
+
+<img id="apprenti-t" src="./assets/plans/apprenti_texte.png" crossorigin="anonymous" />
+<img id="apprenti-3p" src="./assets/plans/apprenti_3perso.png" crossorigin="anonymous" />
+
+<img id="school-left" src="./assets/plans/school_l.png" crossorigin="anonymous" />
+<img id="school-right" src="./assets/plans/school_r.png" crossorigin="anonymous" />
+<img id="pictoschool-left" src="./assets/plans/schoolpicto_l.png" crossorigin="anonymous" />
+<img id="pictoschool-right" src="./assets/plans/schoolpicto_r.png" crossorigin="anonymous" />
+
+    <img id="btn1" src="./assets/plans/picto1.png" crossorigin="anonymous" />
+    <img id="btn2" src="./assets/plans/picto2.png" crossorigin="anonymous" />
+    <img id="btn3" src="./assets/plans/picto3.png" crossorigin="anonymous" />
+    <img id="btn4" src="./assets/plans/picto4.png" crossorigin="anonymous" />
+    <img id="btn5" src="./assets/plans/picto5.png" crossorigin="anonymous" />
+    <img id="btn6" src="./assets/plans/picto6.png" crossorigin="anonymous" />
+    <img id="btn7" src="./assets/plans/picto7.png" crossorigin="anonymous" />
+    <img id="btn8" src="./assets/plans/picto8.png" crossorigin="anonymous" />
+    <img id="btn9" src="./assets/plans/picto9.png" crossorigin="anonymous" />
+    <img id="half-left" src="./assets/plans/camembertG.png" crossorigin="anonymous" />
+    <img id="half-right" src="./assets/plans/camembertD.png" crossorigin="anonymous" />
+  </a-assets>
+
+  <!-- Caméra -->
+  <a-camera position="0 1.6 3"
+            look-controls="true"
+            cursor="rayOrigin: mouse"></a-camera>
+
+  <!-- Fond -->
+  <a-plane id="card-plane" src="#card"
+           position="0 0 0"
+           rotation="0 0 0"
+           width="1" height="1"></a-plane>
+
+  <!-- Personnage -->
+  <a-plane id="layer-front" src="#img-front" position="0.18845 0.20671 0.04103" width="1" height="1" transparent="true" scale="0.48017 0.48017 0.48017" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+
+ <!-- 90 formations perso -->
+  <a-plane id="90perso-plane" src="#90perso" position="-0.20615 -0.363 0.105" width="1.2755" height="1" transparent="true" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+
+<a-plane id="90tab-plane" src="#90tab" position="-0.23711 -0.40046 0.041" width="1.2755" height="1" transparent="true" scale="0.24439 0.24439 0.24439" material="transparent: true; alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+
+<a-plane id="escperso-plane" src="#escperso" position="-0.00205 -0.39152 0.105" width="1.2755" height="1" transparent="true" scale="0.24439 0.24439 0.24439" material="transparent: true;alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+<a-plane id="esctexte-plane" src="#esctexte" position="-0.00977 -0.40046 0.041" width="1.2755" height="1" transparent="true" scale="0.24439 0.24439 0.24439" material="transparent: true;alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+
+
+<a-plane id="apprenti-t-plane" src="#apprenti-t" position="0.24711 -0.39769 0.105" width="1.3898" height="1" transparent="true" scale="0.16 0.16 0.16" material="transparent: true;alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+<a-plane id="apprenti-3p-plane" src="#apprenti-3p" position="0.25863 -0.43059 0.041" width="1" height="0.644" transparent="true" scale="0.16 0.16 0.16" material="transparent: true;alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+
+
+<a-plane id="school-left-plane" src="#school-left" position="-0.21421 -0.24133 0.041" width="1.868" height="1" transparent="true" scale="0.16 0.16 0.16" material="alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+<a-plane id="school-right-plane" src="#school-right" position="0.12891 -0.23654 0.07067" width="2.905" height="1" transparent="true" scale="0.16 0.16 0.16" material="alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+<a-plane id="pictoschool-left-plane" src="#pictoschool-left" position="-0.27653 -0.16299 0.02062" width="0.935" height="1" transparent="true" class="clickable" scale="0.08674 0.08674 0.08674" material="alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+<a-plane id="pictoschool-right-plane" src="#pictoschool-right" position="0.27876 -0.15471 0.031" width="0.985" height="1" transparent="true" class="clickable" scale="0.087 0.087 0.087" material="alphaTest: 0.1; depthWrite: false; side: double"></a-plane>
+
+
+
+  <!-- Bouton 1 -->
+<a-plane id="btn1-plane" src="#btn1" position="-0.0553 0.17463 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+
+      <!-- Bouton 2 -->
+<a-plane id="btn2-plane" src="#btn2" position="-0.05063 0.29446 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+
+  <!-- Boutons 3 → 9 (ajoutés) -->
+  <a-plane id="btn3-plane" src="#btn3" position="0.01634 0.39835 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+  <a-plane id="btn4-plane" src="#btn4" position="0.11758 0.44908 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+  <a-plane id="btn5-plane" src="#btn5" position="0.23179 0.45336 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+  <a-plane id="btn6-plane" src="#btn6" position="0.34659 0.41058 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+  <a-plane id="btn7-plane" src="#btn7" position="0.42305 0.32131 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+  <a-plane id="btn8-plane" src="#btn8" position="0.43744 0.22356 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+  <a-plane id="btn9-plane" src="#btn9" position="0.43882 0.13504 0.125" width="0.2" height="0.2" transparent="true" class="clickable" scale="0.35 0.35 0.35" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+
+
+
+    
+
+  <!-- Camembert -->
+<a-entity id="camembert-container" position="0.18286 0.2654 0.10587" scale="0.27194 0.27194 0.27194">
+    <a-plane id="leftArc" src="#half-left" position="-0.34503 0 0" width="0.686" height="1" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+
+    <a-plane id="rightArc" src="#half-right" position="0.34503 0 0" width="0.686" height="1" material="transparent: true; alphaTest: 0.1; depthWrite: false; depthTest: true; side: double"></a-plane>
+
+  </a-entity>
+
+</a-scene>
+
+
+<!-- ======================================================= -->
+<!-- POPUP AFFICHÉE PAR-DESSUS LA SCÈNE 1 -->
+<!-- ======================================================= -->
+<div id="popup-overlay">
+  <div class="popup-modal">
+    <div class="popup-header">
+      <button class="popup-close" aria-label="Fermer">&times;</button>
+      <div class="popup-actions" id="scenes-menu-buttons">
+        <button class="popup-action" data-scene="2">Industrie/Artisanat</button>
+        <button class="popup-action" data-scene="3">Logistique</button>
+        <button class="popup-action" data-scene="4">Tourisme, H.R.</button>
+        <button class="popup-action" data-scene="5">Gestion, comptabilité</button>
+        <button class="popup-action" data-scene="6">Commerce, communication</button>
+        <button class="popup-action" data-scene="7">Médical, sanitaire</button>
+        <button class="popup-action" data-scene="8">Numérique</button>
+        <button class="popup-action" data-scene="9">Lettres, langues, SHS</button>
+        <button class="popup-action" data-scene="10">Arts plastiques</button>
+        <button id="btn-retour" class="popup-action popup-action-retour">Retour</button>
+      </div>
+    </div>
+    <div class="popup-body">
+      <iframe id="popup-iframe" src="about:blank" frameborder="0" loading="eager"></iframe>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Modal specific styles (keep lightweight, only for scene1) */
+  #popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+  }
+  #popup-overlay.show { display: flex; }
+  .popup-modal {
+    background: white;
+    width: 80%;
+    max-width: 900px;
+    height: 70vh;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    background: rgba(255,255,255,0.9);
+  }
+  .popup-close {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .popup-actions { 
+    display: flex; 
+    gap: 8px; 
+    align-items: center; 
+    flex-wrap: wrap;
+    flex: 1;
+    overflow: visible !important;   /* autorise le hover à dépasser */
+    max-height: none !important;
+  }
+  .popup-action {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .popup-action:hover {
+    background: #5568d3;
+     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+  }
+  .popup-action.active {
+    background: #e74c3c;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  }
+  .popup-action-retour { 
+    background: #777; 
+    margin-left: auto;
+  }
+  .popup-action-retour:hover {
+    background: #555;
+  }
+  .popup-body { flex: 1; display: flex; }
+  #popup-iframe { width: 100%; height: 100%; border: 0; }
+</style>
+
+
+
+<!-- ======================================================= -->
+<!-- SCRIPTS FINAUX (chargés APRÈS la création des éléments) -->
+<!-- ======================================================= -->
+<script>
+window.addEventListener("load", () => {
+
+    /* ---- 1 : Boutons → ouvrir les scènes dans la modal iframe ---- */
+    const btn1 = document.getElementById("btn1-plane");
+    const btn2 = document.getElementById("btn2-plane");
+    const popupOverlay = document.getElementById("popup-overlay");
+    const popupClose = document.querySelector(".popup-close");
+    const iframe = document.getElementById('popup-iframe');
+    const btnRetour = document.getElementById('btn-retour');
+    const scenesMenuButtons = document.getElementById('scenes-menu-buttons');
+
+    const sceneMapping = {
+      'btn1': './scene2.html',
+      'btn2': './scene3.html',
+      'btn3': './scene4.html',
+      'btn4': './scene5.html',
+      'btn5': './scene6.html',
+      'btn6': './scene7.html',
+      'btn7': './scene8.html',
+      'btn8': './scene9.html',
+      'btn9': './scene10.html'
+    };
+
+    const sceneNameMap = {
+      '2': 'Industrie/Artisanat',
+      '3': 'Logistique',
+      '4': 'Tourisme, H.R.',
+      '5': 'Gestion, comptabilité',
+      '6': 'Commerce, communication',
+      '7': 'Médical, sanitaire',
+      '8': 'Numérique',
+      '9': 'Lettres, langues, SHS',
+      '10': 'Arts plastiques'
+    };
+
+    function openModalFor(src) {
+      iframe.src = src;
+      popupOverlay.classList.add('show');
+      updateActiveButton(src);
+    }
+
+    function updateActiveButton(src) {
+      const sceneNum = src.match(/scene(\d+)/)?.[1];
+      if (!sceneNum) return;
+      
+      document.querySelectorAll('.popup-action').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.scene === sceneNum) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    // Attacher les handlers pour les boutons de scène (identifier l'élément cliqué dynamiquement)
+    ['btn1','btn2','btn3','btn4','btn5','btn6','btn7','btn8','btn9'].forEach(id => {
+      const el = document.getElementById(id + '-plane');
+      if (!el) return;
+      el.addEventListener('click', (e) => {
+        // récupérer l'id réel de l'élément (ex: 'btn2-plane') et en déduire la clé ('btn2')
+        const clickedId = (e.currentTarget && e.currentTarget.id) || (e.target && e.target.id) || (id + '-plane');
+        const key = clickedId.replace(/-plane$/, '');
+        const src = sceneMapping[key] || './scene2.html';
+        openModalFor(src);
+      });
+    });
+
+    // Menu buttons
+    document.querySelectorAll('.popup-action[data-scene]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sceneNum = btn.dataset.scene;
+        const src = `./scene${sceneNum}.html`;
+        openModalFor(src);
+      });
+    });
+
+    btnRetour.addEventListener('click', () => { 
+      popupOverlay.classList.remove('show'); 
+      iframe.src = 'about:blank'; 
+      document.querySelectorAll('.popup-action').forEach(btn => btn.classList.remove('active'));
+    });
+
+    // fermer la modal
+    popupClose.addEventListener('click', () => { popupOverlay.classList.remove('show'); iframe.src = 'about:blank'; });
+
+    // fermer en cliquant sur le fond
+    popupOverlay.addEventListener('click', (e) => {
+      if (e.target === popupOverlay) {
+        popupOverlay.classList.remove('show');
+        iframe.src = 'about:blank';
+      }
+    });
+
+  /* ---- 5 : Ratio de ton fond scène 1 ---- */
+  function setPlaneRatio(plane, img) {
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      if (!w || !h) return;
+      plane.setAttribute('width', w / h);
+      plane.setAttribute('height', 1);
+  }
+
+  const card = document.getElementById('card');
+  const cardPlane = document.getElementById('card-plane');
+  if (card.complete) setPlaneRatio(cardPlane, card);
+  else card.addEventListener('load', () => setPlaneRatio(cardPlane, card));
+
+});
+</script>
+
+</body>
+</html>
