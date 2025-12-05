@@ -20,10 +20,11 @@
     
     #scan-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 50%;
+      left: 50%;
       width: 100%;
       height: 100%;
+       transform: translate(-50%, -50%);
       background: rgba(0,0,0,0.4);
       display: flex;
       align-items: center;
@@ -241,10 +242,11 @@
 </head>
 <body>
   <div id="scan-overlay">
-    <img src="./assets/Affichev2.jpg" alt="scan hint" />
+     
+     <img src="./assets/Affichev2.jpg" alt="scan icon" >
   </div>
 
-  <a-scene mindar-image="uiScanning: #scan-overlay; imageTargetSrc: ./assets/targets2.mind;"
+<a-scene mindar-image="uiScanning: yes; imageTargetSrc: ./assets/targets2.mind;"
            color-space="sRGB"
            renderer="colorManagement: true, physicallyCorrectLights"
            vr-mode-ui="enabled: false"
@@ -395,13 +397,34 @@ animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to:
 <a-plane id="8prct-plane" src="#8prct" position="0.32 -0.20819 0.159" width="1" height="1" transparent="true" class="clickable" scale="0.05 0.05 0.05" material="alphaTest: 0.1; depthWrite: false; side: double"
 animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 400"></a-plane>
 
-<a-plane id="bac2-plane" src="#bac2" position="-0.44033 -0.43531 0.18" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double"></a-plane>
-<a-plane id="bac3-plane" src="#bac3" position="0.04721 -0.43531 0.18" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double"></a-plane>
-<a-plane id="bac5-plane" src="#bac5" position="0.47046 -0.4313 0.18" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double"></a-plane>
+<a-plane id="bac2-plane" src="#bac2" position="-0.44033 -0.43531 0.2" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double "
+ animation__grow="startEvents: bounce; property: scale; from: 0 0 0; to: 0.25 0.25 0.25; dur: 900; easing: easeOutBack; delay: 120"
+ animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 80"
+ ></a-plane>
+<a-plane id="bac3-plane" src="#bac3" position="0.04721 -0.43531 0.2" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double "
+ animation__grow="startEvents: bounce; property: scale; from: 0 0 0; to: 0.25 0.25 0.25; dur: 900; easing: easeOutBack; delay: 120"
+ animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 240"
+ ></a-plane>
+<a-plane id="bac5-plane" src="#bac5" position="0.47046 -0.4313 0.2" width="1" height="1.0396" transparent="true" class="clickable" scale="0.25 0.25 0.25" material="alphaTest: 0.1; side: double"
+   animation__grow="startEvents: bounce; property: scale; from: 0 0 0; to: 0.25 0.25 0.25; dur: 900; easing: easeOutBack; delay: 240" 
+   animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 400"
+   ></a-plane>
 
-<a-plane id="bac2p-plane" src="#bac2p" position="-0.43882 -0.37143 0.15" width="1" height="0.3790" transparent="true" class="clickable" scale="0.5 0.5 0.5" material="alphaTest: 0.1; side: double"></a-plane>
-<a-plane id="bac3p-plane" src="#bac3p" position="0.02961 -0.39191 0.15" width="1" height="0.5" transparent="true" class="clickable" scale="0.44669 0.44669 0.44669" material="alphaTest: 0.1; side: double"></a-plane>
-<a-plane id="bac5p-plane" src="#bac5p" position="0.47352 -0.39095 0.15" width="1" height="0.6489" transparent="true" class="clickable" scale="0.32824 0.32824 0.32824" material="alphaTest: 0.1; side: double"></a-plane>
+<a-plane id="bac2p-plane" src="#bac2p" position="-0.43882 -0.37143 0.01" width="1" height="0.3790" transparent="true" class="clickable" scale="0.5 0.5 0.5" material="alphaTest: 0.1; side: double; depthWrite: false; opacity: 0"
+ animation__grow="startEvents: bounce; property: scale; from: 0 0 0; to: 0.5 0.5 0.5; dur: 900; easing: easeOutBack; delay: 300"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 400"
+   >
+</a-plane>
+<a-plane id="bac3p-plane" src="#bac3p" position="0.02961 -0.39191 0.01" width="1" height="0.5" transparent="true" class="clickable" scale="0.44669 0.44669 0.44669" material="alphaTest: 0.1; side: double; depthWrite: false; opacity: 0"
+ animation__grow="startEvents: bounce; property: scale; from: 0 0 0; to: 0.44669 0.44669 0.44669; dur: 900; easing: easeOutBack; delay: 420"
+  animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 400"
+   >
+</a-plane>
+<a-plane id="bac5p-plane" src="#bac5p" position="0.47352 -0.39095 0.01" width="1" height="0.6489" transparent="true" class="clickable" scale="0.32824 0.32824 0.32824" material="alphaTest: 0.1; side: double; depthWrite: false; opacity: 0"
+   animation__grow="startEvents: bounce; property: scale; from: 0 0 0; to: 0.32824 0.32824 0.32824; dur: 900; easing: easeOutBack; delay: 540"
+    animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutQuad; delay: 400"
+   >
+</a-plane>
 
       <!-- Boutons 1 à 9 -->
       <a-plane id="btn1-plane" src="#btn1" position="-0.7134 -0.01941 0.163" width="0.2" height="0.2" transparent="true" class="clickable" scale="0 0 0" material="alphaTest: 0.1; depthWrite: false; side: double"
@@ -582,7 +605,7 @@ animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to:
   if (front && front.emit) { front.emit('rise'); front.emit('fadein'); }
 
   // Trigger animations on icons, rectangles and buttons
-        ['icon1-plane','icon2-plane','icon3-plane','icon4-plane','icon5-plane','rect1','rect2','rect3','rect4','rect5','btn1-plane','btn2-plane','btn3-plane','btn4-plane','btn5-plane','btn6-plane','btn7-plane','btn8-plane','btn9-plane'].forEach((id, i) => {
+        ['icon1-plane','icon2-plane','icon3-plane','icon4-plane','icon5-plane','rect1','rect2','rect3','rect4','rect5','btn1-plane','btn2-plane','btn3-plane','btn4-plane','btn5-plane','btn6-plane','btn7-plane','btn8-plane','btn9-plane', 'bac2-plane','bac3-plane', 'bac5-plane','bac2p-plane','bac3p-plane', 'bac5p-plane','31prct-plane','26prct-plane','13prct-plane','12prct-plane','8prct-plane'].forEach((id, i) => {
           const el = document.getElementById(id);
           if (!el) return;
           if (id.startsWith('btn')) {
@@ -604,7 +627,7 @@ animation__fadein="startEvents: bounce; property: material.opacity; from: 0; to:
         const front = document.getElementById('layer-front');
         if (front && front.emit) { front.emit('hide'); front.emit('fadeout'); }
         // reset icons and buttons
-        ['icon1-plane','icon2-plane','icon3-plane','icon4-plane','icon5-plane','btn1-plane','btn2-plane','btn3-plane','btn4-plane','btn5-plane','btn6-plane','btn7-plane','btn8-plane','btn9-plane'].forEach(id => {
+        ['icon1-plane','icon2-plane','icon3-plane','icon4-plane','icon5-plane','btn1-plane','btn2-plane','btn3-plane','btn4-plane','btn5-plane','btn6-plane','btn7-plane','btn8-plane','btn9-plane','rect1','rect2','rect3','rect4','rect5','btn1-plane','btn2-plane','btn3-plane','btn4-plane','btn5-plane','btn6-plane','btn7-plane','btn8-plane','btn9-plane', 'bac2-plane','bac3-plane', 'bac5-plane','bac2p-plane','bac3p-plane', 'bac5p-plane','31prct-plane','26prct-plane','13prct-plane','12prct-plane','8prct-plane'].forEach(id => {
           const el = document.getElementById(id);
           if (!el) return;
           if (id.startsWith('btn')) {
